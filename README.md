@@ -13,6 +13,6 @@ Run 'pip install -r requirements.txt' to install the project requirements.
 Then run 'python setup.py build_ext --inplace'
 
 ## Test
-`python3 efficientdet_visualize.py --model-path <path to pretrained h5 files> --phi <0-6> --viz-cls <class from coco to visualize on image> --img-path <input image path>, ` to test your image by specifying image path and model path there. 
+`python3 efficientdet_visualize.py --model-path <path to pretrained h5 files> --phi <0-6> --viz-cls <class from coco to visualize on image> --img-path <input image path>, ` to test your image by specifying image path and model path there. The output combined results can be seen in 'out.jpg' in the same folder
 
 ![image1](out.jpg) 
