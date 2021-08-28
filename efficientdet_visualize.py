@@ -1,6 +1,5 @@
 """
-Gradcam visualization ref modified from implementation by 
-Author: [fchollet](https://twitter.com/fchollet)
+Gradcam visualization ref modified from implementation by fchollet (https://keras.io/examples/vision/grad_cam)
 """
 
 import cv2
@@ -15,8 +14,6 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 # Display
-from IPython.display import Image, display
-import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 from model_modified import efficientdet_mod
@@ -29,10 +26,10 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(description='Gradcam visualization script for Efficientdet.')
 
-    parser.add_argument('--model-path', help='Path to trained model.', default='efficientdet-d1.h5')
+    parser.add_argument('--model_path', help='Path to trained model.', default='efficientdet-d1.h5')
     parser.add_argument('--phi', help='Hyper parameter phi', default=1, type=int, choices=(0, 1, 2, 3, 4, 5, 6))    
-    parser.add_argument('--viz-cls', help='coco class to visualize', type=int, default=0)
-    parser.add_argument('--img-path', help='image to visualize', default='sample\\person.jpg')
+    parser.add_argument('--viz_cls', help='coco class to visualize', type=int, default=0)
+    parser.add_argument('--img_path', help='image to visualize', default='sample\\person.jpg')
 
     print(vars(parser.parse_args(args)))
     return parser.parse_args(args)
@@ -44,10 +41,10 @@ def main(args=None):
         args = sys.argv[1:]
     args = parse_args(args)
     
-    image_path = args.img_path#'sample\\person.jpg'
-    top_pred_index = args.viz_cls#choose which class detection to watch 0=person
-    model_path = args.model_path#'efficientdet-d1.h5'
-    phi = args.phi#1
+    image_path = args.img_path
+    top_pred_index = args.viz_cls
+    model_path = args.model_path
+    phi = args.phi
 
     weighted_bifpn = True
     image_sizes = (512, 640, 768, 896, 1024, 1280, 1408)
@@ -78,11 +75,20 @@ def main(args=None):
     image = [np.expand_dims(image, axis=0)]
 
     #Create an combined image with all gradcams from different layers
-    out_image = np.zeros((height*3,width*2,3), np.uint8)
+    out_image = np.zeros((image_size*2,image_size*3,3), np.uint8)
     
-    out_image[0:height,0:width,:] = src_image
+    out_image[0:h,0:w,:] = src_image
+    display_row = 0
+    display_col = 0
     
     for i in range(0,num_layers):
+        
+        #relative position is merged display image
+        display_col += 1
+        if display_col == 3:
+            display_row = 1
+            display_col = 0
+            
         with tf.GradientTape() as tape:
             last_conv_layer_output = conv_layer_out[i](image)
             preds = pred_models[i](last_conv_layer_output)
@@ -129,9 +135,9 @@ def main(args=None):
         superimposed_img = jet_heatmap * 0.3 + img
         superimposed_img = keras.preprocessing.image.array_to_img(superimposed_img)
 
-        # Display Grad CAM
-        #plt.matshow(superimposed_img)
-        #plt.show()
-        
+        out_image[display_row*image_size:(display_row+1)*image_size,
+        display_col*image_size:(display_col+1)*image_size,:] = superimposed_img
+    
+    cv2.imwrite("out.jpg",out_image)
 if __name__ == '__main__':
     main()
