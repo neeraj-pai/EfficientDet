@@ -131,6 +131,9 @@ def main(args=None):
         jet_heatmap = jet_heatmap.resize((image_sizes[phi], image_sizes[phi]))
         jet_heatmap = keras.preprocessing.image.img_to_array(jet_heatmap)
 
+        #exchange b and r 
+        jet_heatmap = jet_heatmap[:, :, ::-1]
+        
         # Superimpose the heatmap on original image
         superimposed_img = jet_heatmap * 0.3 + img
         superimposed_img = keras.preprocessing.image.array_to_img(superimposed_img)
